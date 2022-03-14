@@ -1,17 +1,21 @@
+import { computeHeadingLevel } from "@testing-library/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-
-function PlaceOrder({ products }) {
+import { useNavigate } from "react-router-dom";
+function PlaceOrder({ products,isSet }) {
   const data = localStorage.getItem("cartItem");
   const [test1, setTest1] = useState([]);
+  let navigate = useNavigate();
   let test = [];
   const [postData, setPostData] = useState({
     personName: "",
     deliveryAddress: "",
-    productsOrdered: test,
-    orderTotal: "",
+    productsOrdered: null,
+    orderTotal: 0,
   });
+  
   const [isSubmit, setIsSubmit] = useState(false);
+  const [total, setTotal] = useState(0);
   const tempArr = [];
   const cartCount = JSON.parse(localStorage.getItem("cartCount"));
   const finalProducts = JSON.parse(localStorage.getItem("products"));
@@ -29,80 +33,55 @@ function PlaceOrder({ products }) {
       total: 0,
     },
   ]);
-  // test.push({ key: 1, value: 2 });
-  // console.log(test);
+  
   useEffect(() => {
-    //setPostData({ ...postData, productsOrdered: product });
-    // const d =
-    //   products.products &&
-    //   products.products.map((val, index) => {
-    //     return (
-    //       <>
-    //         {finalProducts &&
-    //           finalProducts.map((v, i) => {
-    //             return (
-    //               <>{val._id === v ? test.push(...{ key: 1, value: 2 }) : ""}</>
-    //             );
-    //           })}
-    //       </>
-    //     );
-    //   });
-    // console.log(d);
-  }, []);
-  // console.log(d);
-  // setPostData({
-  //   ...postData,
-  //   productsOrdered: [
-  //     {
-  //       ...product,
-  //       productID: val._id,
-  //       qty: finalquantity[i],
-  //       price: val.price,
-  //       total: finalquantity[i] * val.price,
-  //     },
-  //   ],
-  // })
+    if(isSet)
+    {
+    products.products &&
+      products.products.map((val, index) => {
+        return (
+          <>
+            {finalProducts &&
+              finalProducts.map((v, i) => {
+                return (
+                  <>
+                    {val._id === v
+                      ? test.push({
+                          productID: val._id,
+                          qty: finalquantity[i],
+                          price: val.price,
+                          total: finalquantity[i] * val.price,
+                        })
+                      : ""}
+                  </>
+                );
+              })}
+          </>
+        );
+      });
+    setProd(test);
+    setTotal(subTotal)
+    setIsSubmit(true)
+    console.log(subTotal)
+    }
+  },[postData]);
+  useEffect(() => {
+    
+      const xxx=[...prod]
+      
+      setPostData({ ...postData, productsOrdered:xxx,orderTotal:total });
+      },[isSubmit]);
+  console.log(prod)
+  console.log(postData)
 
-  // useEffect(() => {
-  //   products.products &&
-  //     products.products.map((val, index) => {
-  //       return (
-  //         <>
-  //           {finalProducts &&
-  //             finalProducts.map((v, i) => {
-  //               return (
-  //                 <>
-  //                   {val._id === v
-  //                     ? test.push({
-  //                         productID: val._id,
-  //                         qty: finalquantity[i],
-  //                         price: val.price,
-  //                         total: finalquantity[i] * val.price,
-  //                       })
-  //                     : ""}
-  //                 </>
-  //               );
-  //             })}
-  //         </>
-  //       );
-  //     });
-  //   setProd(test);
-  // }, []);
-  // useEffect(() => {
-  //   setPostData({ ...postData, productsOrdered: prod });
-  // }, [prod]);
 
-  console.log(tempArr);
 
-  const handlePlaceOrder = (sub) => {
-    console.log(test);
-    // setPostData({ ...postData, orderTotal: sub });
-    // setPostData({ ...postData, orderTotal: sub });
-    // axios
-    //   .post("http://interviewapi.ngminds.com/api/placeOrder", setPostData)
-    //   .then((response) => console.log("success"));
-  };
-  console.log(test);
+   const handlePlaceOrder = (sub) => {
+    setPostData({...postData,orderTotal:sub})
+    axios
+      .post("http://interviewapi.ngminds.com/api/placeOrder", postData)
+      .then((response) => navigate("/success"));
+   };
 
   return (
     <div>
@@ -136,14 +115,14 @@ function PlaceOrder({ products }) {
                             <>
                               {finalProducts &&
                                 finalProducts.map((v, i) => {
-                                  if (val._id === v) {
-                                    test.push({
-                                      productID: val._id,
-                                      qty: finalquantity[i],
-                                      price: val.price,
-                                      total: finalquantity[i] * val.price,
-                                    });
-                                  }
+                                  // if (val._id === v) {
+                                  //   test1.push({
+                                  //     productID: val._id,
+                                  //     qty: finalquantity[i],
+                                  //     price: val.price,
+                                  //     total: finalquantity[i] * val.price,
+                                  //   });
+                                  // }
 
                                   return (
                                     <>

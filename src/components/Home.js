@@ -17,6 +17,8 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [sortProduct, setSortProduct] = useState("default");
   const [perPage, setPerPage] = useState(5);
+  const [active, setActive] = useState(1);
+
   useEffect(() => {
     axios.get("http://interviewapi.ngminds.com/api/getAllProducts").then(
       (response) => {
@@ -102,6 +104,8 @@ function Home() {
   const prevPage = () => {
     if (initialX > 1) {
       setInitialX(initialX - 1);
+      setActive(initialX-1)
+
     }
   };
   const nextPage = () => {
@@ -109,6 +113,7 @@ function Home() {
     // console.log(pageCount);
     if (initialX < pageCount) {
       setInitialX(initialX + 1);
+      setActive(initialX+1)
     }
   };
   return (
@@ -205,6 +210,8 @@ function Home() {
               handlePageClick={handlePageClick}
               arrLength={arrLength}
               changeX={changeX}
+              active={active}
+              setActive={setActive}
             />
           </div>
           <div class="col-sm-4 text-right">

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 function Cart({ products }) {
   const [quantity, setQuantity] = useState(0);
-  const ar = [];
+  
   const d = JSON.parse(localStorage.getItem("cartItem"));
   const cartCount = JSON.parse(localStorage.getItem("cartCount"));
   const [data, setData] = useState(d);
@@ -14,22 +14,23 @@ function Cart({ products }) {
   var newData = data.filter(function (elem, pos) {
     return data.indexOf(elem) == pos;
   });
-
   const counts = {};
   data.forEach(function (x) {
     counts[x] = (counts[x] || 0) + 1;
   });
-  for (let i = 0; i < newData.length; i++) {
-    ar.push(counts[data[i]]);
-  }
-  const [noOfProd, setNoOfProd] = useState(ar);
 
-  const setValues = (e, price) => {
-    console.log(price);
-    setQuantity(e.target.value);
-    let total = tot + price * quantity;
-    setTotal(total);
-  };
+ 
+const ar=Object.values(counts);
+
+  console.log(ar)
+  const [noOfProd, setNoOfProd] = useState(ar);
+console.log(noOfProd)
+  // const setValues = (e, price) => {
+  //   console.log(price);
+  //   setQuantity(e.target.value);
+  //   let total = tot + price * quantity;
+  //   setTotal(total);
+  // };
   console.log(quantity);
 
   console.log(Storage);
@@ -55,8 +56,8 @@ function Cart({ products }) {
   };
 
   useEffect(() => {
-    console.log(products.products);
     console.log(newData);
+    
     products.products &&
       products.products.map((val, index) => {
         newData.map((v, i) => {
@@ -65,7 +66,7 @@ function Cart({ products }) {
             : "";
         });
       });
-  }, [noOfProd, products]);
+  }, [noOfProd, products,isupdate]);
 
   localStorage.setItem("products", JSON.stringify(newData));
   localStorage.setItem("quantity", JSON.stringify(noOfProd));
@@ -122,11 +123,12 @@ function Cart({ products }) {
                                         >
                                           -
                                         </button>
+                                        
                                         <input
                                           type="number"
                                           name="quantity"
                                           value={noOfProd[val]}
-                                          onClick={(e) => setValues(e, i.price)}
+                                          // onClick={(e) => setValues(e, i.price)}
                                           className="qty"
                                           id={val}
                                           size="5px"

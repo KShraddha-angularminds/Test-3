@@ -8,6 +8,8 @@ function Pagination({
   arrLength,
   changeX,
   setPageCount,
+  active,
+  setActive
 }) {
   let arr = [];
   let property;
@@ -16,8 +18,8 @@ function Pagination({
     renderProducts.push(i);
   }
   //  console.log(currentPage);
-  const [active, setAsctive] = useState(0);
   const activePage = (no) => {
+    setActive(no)
     property = document.getElementById(no);
     property.classList.add("active-page");
     console.log(document.getElementById(no));
@@ -54,7 +56,7 @@ function Pagination({
             renderProducts.map((no, i) => {
               return (
                 <li className="page-item pages ">
-                  <a a className="" id={no} onClick={() => activePage(no)}>
+                  <a a className={ no==active ? "active" : ""} id={no} onClick={() => activePage(no)}>
                     {no}
                   </a>
                 </li>

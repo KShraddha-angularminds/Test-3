@@ -13,13 +13,15 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./components/Home";
+import Success from "./components/Success";
 function App() {
   const [products, setProducts] = useState({});
-
+  const [isSet,setIsSet] = useState(false)
   useEffect(() => {
     axios.get("http://interviewapi.ngminds.com/api/getAllProducts").then(
       (response) => {
         setProducts(response.data);
+        setIsSet(true)
       },
       (error) => {}
     );
@@ -35,8 +37,9 @@ function App() {
           <Route path="/cart" element={<Cart products={products} />} />
           <Route
             path="/place-order"
-            element={<PlaceOrder products={products} />}
+            element={<PlaceOrder products={products} isSet={isSet} />}
           />
+          <Route path="/success" element={<Success/>}/>
         </Routes>
       </Router>
 
