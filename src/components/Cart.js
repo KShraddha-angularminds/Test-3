@@ -3,12 +3,26 @@ import { Link } from "react-router-dom";
 function Cart({ products }) {
   const [quantity, setQuantity] = useState(0);
   const ar = [];
-  const data = localStorage.getItem("cartItem");
+  const d = JSON.parse(localStorage.getItem("cartItem"));
+  const cartCount = JSON.parse(localStorage.getItem("cartCount"));
+  const [data, setData] = useState(d);
+  const [cartICnt, setCartICnt] = useState(cartCount);
   const baseURL = "http://interviewapi.ngminds.com";
   const [tot, setTotal] = useState(0);
-  //console.log(data);
-  const a = data.split(",");
-  a.shift();
+  const [isupdate, setIsUpdate] = useState(false);
+  const [Storage, setstorage] = useState([]);
+  var newData = data.filter(function (elem, pos) {
+    return data.indexOf(elem) == pos;
+  });
+
+  const counts = {};
+  data.forEach(function (x) {
+    counts[x] = (counts[x] || 0) + 1;
+  });
+  for (let i = 0; i < newData.length; i++) {
+    ar.push(counts[data[i]]);
+  }
+  const [noOfProd, setNoOfProd] = useState(ar);
 
   const setValues = (e, price) => {
     console.log(price);
@@ -16,72 +30,113 @@ function Cart({ products }) {
     let total = tot + price * quantity;
     setTotal(total);
   };
-  for (let i = 0; i < a.length; i++) {
-    ar.push(2);
-    // setQuantity([...quantity, 2]);
-  }
-  //   useEffect(() => {
-  //     setQuantity(ar);
-  //   }, []);
   console.log(quantity);
-  //   const incrementCnt = (val) => {
-  //     setQuantity([...quantity]);
-  //   };
+
+  console.log(Storage);
+  const removeProduct = (i) => {
+    console.log(i);
+    data &&
+      data.map((index) => {
+        console.log(data.indexOf(i));
+        return index == i ? data.splice(data.indexOf(i), 1) : "";
+      });
+
+    localStorage.setItem("cartItem", JSON.stringify(data));
+
+    setCartICnt(cartICnt - 1);
+    setIsUpdate(!isupdate);
+  };
+  const incrementCnt = (i) => {
+    setNoOfProd((prev) => prev.map((val, j) => (i === j ? prev[i] + 1 : val)));
+  };
+
+  const decrementCnt = (i) => {
+    setNoOfProd((prev) => prev.map((val, j) => (i === j ? prev[i] - 1 : val)));
+  };
+
+  useEffect(() => {
+    console.log(products.products);
+    console.log(newData);
+    products.products &&
+      products.products.map((val, index) => {
+        newData.map((v, i) => {
+          return newData[i] == val._id
+            ? setTotal((prev) => prev + val.price * noOfProd[i])
+            : "";
+        });
+      });
+  }, [noOfProd, products]);
+
+  localStorage.setItem("products", JSON.stringify(newData));
+  localStorage.setItem("quantity", JSON.stringify(noOfProd));
+
   return (
     <div>
-      <div class="container">
-        <div class="row">
+      <div className="container">
+        <div className="row">
           <h1>
             <a href="/">My Ecommerce Site</a>
 
-            <span class="pull-right">
-              <a href="cart.html">Cart (0)</a>
+            <span className="pull-right">
+              <a href="cart.html">Cart {`(${cartICnt})`}</a>
             </span>
           </h1>
           <hr />
-          <div class="col-md-12">
-            <div class="panel panel-default">
-              <div class="panel-heading">MY CART (1)</div>
-              <div class="panel-body">
+          <div className="col-md-12">
+            <div className="panel panel-default">
+              <div className="panel-heading">MY CART (1)</div>
+              <div className="panel-body">
                 <form>
-                  {a &&
-                    a.map((index, val) => {
+                  {newData &&
+                    newData.map((index, val) => {
                       return (
-                        <div class="row">
+                        <div className="row">
                           {products.products &&
                             products.products.map((i, v) => {
                               return (
                                 <>
                                   {i._id == index ? (
                                     <>
-                                      <div class="col-md-3">
+                                      <div className="col-md-3">
                                         <img
                                           src={`${baseURL}/${i.image}`}
                                           width="100px"
                                           height="200px"
                                         />
                                       </div>
-                                      <div class="col-md-3">
+                                      <div className="col-md-3">
                                         {i.name}
                                         <br />
-                                        <i class="fa fa-inr"></i>
+                                        <i className="fa fa-inr"></i>
                                         {i.price}
                                       </div>
 
-                                      <div class="col-md-3">
+                                      <div className="col-md-3">
                                         quantity
                                         <br />
+                                        <button
+                                          type="button"
+                                          onClick={() => decrementCnt(val)}
+                                          class="qtyminus"
+                                          ng-disabled="qty<=0"
+                                        >
+                                          -
+                                        </button>
                                         <input
                                           type="number"
                                           name="quantity"
-                                          //   onClick={(e) =>
-                                          //     setQuantity(e.target.value)
-                                          //   }
+                                          value={noOfProd[val]}
                                           onClick={(e) => setValues(e, i.price)}
-                                          class="qty"
+                                          className="qty"
                                           id={val}
                                           size="5px"
                                         />
+                                        <button
+                                          type="button"
+                                          onClick={() => incrementCnt(val)}
+                                        >
+                                          +
+                                        </button>
                                       </div>
                                       {/* {setTotal(tot + quantity * i.price)} */}
                                     </>
@@ -92,32 +147,39 @@ function Cart({ products }) {
                               );
                             })}
 
-                          <div class="col-md-3">
-                            <a href="cart.html" class="btn btn-warning">
+                          <div className="col-md-3">
+                            <button
+                              type="button"
+                              className="btn btn-warning"
+                              onClick={() => removeProduct(index)}
+                            >
                               remove
-                            </a>
+                            </button>
                           </div>
                         </div>
                       );
                     })}
                 </form>
                 <hr />
-                <div class="row">
-                  <div class="col-md-9">
-                    <label class="pull-right">Amount Payable</label>
+                <div className="row">
+                  <div className="col-md-9">
+                    <label className="pull-right">Amount Payable</label>
                   </div>
-                  <div class="col-md-3 ">{tot}</div>
+                  <div className="col-md-3 ">{tot}</div>
                 </div>
               </div>
 
-              <div class="panel-footer">
+              <div className="panel-footer">
                 <Link to="/home">
-                  <a href="index.html" class="btn btn-success">
+                  <a href="index.html" className="btn btn-success">
                     Continue Shopping
                   </a>
                 </Link>
                 <Link to="/place-order">
-                  <a href="placeOrder.html" class="pull-right btn btn-danger">
+                  <a
+                    href="placeOrder.html"
+                    className="pull-right btn btn-danger"
+                  >
                     Place Order
                   </a>
                 </Link>
