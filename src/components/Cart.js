@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-function Cart({ products }) {
+function Cart({ products, isSet }) {
   const [quantity, setQuantity] = useState(0);
-  
   const d = JSON.parse(localStorage.getItem("cartItem"));
   const cartCount = JSON.parse(localStorage.getItem("cartCount"));
   const [data, setData] = useState(d);
-  const [cartICnt, setCartICnt] = useState(cartCount);
+  const [cartICnt, setCartICnt] = useState(cartCount || 0);
   const baseURL = "http://interviewapi.ngminds.com";
-  const [tot, setTotal] = useState(0);
+
   const [isupdate, setIsUpdate] = useState(false);
   const [Storage, setstorage] = useState([]);
   var newData = data.filter(function (elem, pos) {
@@ -19,21 +18,33 @@ function Cart({ products }) {
     counts[x] = (counts[x] || 0) + 1;
   });
 
- 
-const ar=Object.values(counts);
-
-  console.log(ar)
+  const ar = Object.values(counts);
   const [noOfProd, setNoOfProd] = useState(ar);
-console.log(noOfProd)
+  console.log(noOfProd);
+
+  let sum = 0;
+  products.products &&
+    products.products.map((val, index) => {
+      newData.map((v, i) => {
+        return newData[i] === val._id
+          ? (sum = sum + val.price * noOfProd[i])
+          : "";
+      });
+    });
+  console.log(sum);
+  const [tot, setTotal] = useState(sum);
+  useEffect(() => {
+    setTotal(sum);
+  });
   // const setValues = (e, price) => {
   //   console.log(price);
   //   setQuantity(e.target.value);
   //   let total = tot + price * quantity;
   //   setTotal(total);
   // };
-  console.log(quantity);
+  //console.log(quantity);
 
-  console.log(Storage);
+  // console.log(Storage);
   const removeProduct = (i) => {
     console.log(i);
     data &&
@@ -43,30 +54,37 @@ console.log(noOfProd)
       });
 
     localStorage.setItem("cartItem", JSON.stringify(data));
-
+    const a = newData.length - 1;
+    localStorage.setItem("cartCount", a);
     setCartICnt(cartICnt - 1);
     setIsUpdate(!isupdate);
   };
-  const incrementCnt = (i) => {
+  const incrementCnt = (i, price) => {
     setNoOfProd((prev) => prev.map((val, j) => (i === j ? prev[i] + 1 : val)));
+    console.log(price);
+    console.log(noOfProd[i]);
+    setTotal((noOfProd[i] + 1) * price);
   };
 
-  const decrementCnt = (i) => {
+  const decrementCnt = (i, price) => {
     setNoOfProd((prev) => prev.map((val, j) => (i === j ? prev[i] - 1 : val)));
+    console.log(noOfProd[i]);
+    setTotal((noOfProd[i] + 1) * price);
   };
 
   useEffect(() => {
-    console.log(newData);
-    
-    products.products &&
-      products.products.map((val, index) => {
-        newData.map((v, i) => {
-          return newData[i] == val._id
-            ? setTotal((prev) => prev + val.price * noOfProd[i])
-            : "";
+    console.log(isSet);
+    if (isSet) {
+      products.products &&
+        products.products.map((val, index) => {
+          newData.map((v, i) => {
+            return newData[i] === val._id
+              ? setTotal((prev) => prev + val.price * noOfProd[i])
+              : "";
+          });
         });
-      });
-  }, [noOfProd, products,isupdate]);
+    }
+  }, []);
 
   localStorage.setItem("products", JSON.stringify(newData));
   localStorage.setItem("quantity", JSON.stringify(noOfProd));
@@ -117,13 +135,14 @@ console.log(noOfProd)
                                         <br />
                                         <button
                                           type="button"
-                                          onClick={() => decrementCnt(val)}
+                                          onClick={() =>
+                                            decrementCnt(val, i.price)
+                                          }
                                           class="qtyminus"
                                           ng-disabled="qty<=0"
                                         >
                                           -
                                         </button>
-                                        
                                         <input
                                           type="number"
                                           name="quantity"
@@ -135,7 +154,9 @@ console.log(noOfProd)
                                         />
                                         <button
                                           type="button"
-                                          onClick={() => incrementCnt(val)}
+                                          onClick={() =>
+                                            incrementCnt(val, i.price)
+                                          }
                                         >
                                           +
                                         </button>
